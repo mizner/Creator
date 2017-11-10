@@ -1,45 +1,62 @@
-[![Build Status](https://travis-ci.org/Automattic/_s.svg?branch=master)](https://travis-ci.org/Automattic/_s)
+# Creator
+## Why?
+- This was creator for folks at my local WordPress Meetup group to get them started using some modern frontend developer tooling.
+## Note
+- This is for local development of a WordPress theme using something like:
+    - [Local by Flywheel (reccomended)](https://local.getflywheel.com/) 
+    - [MAMP](https://www.mamp.info)
+    - [ServerPress](https://serverpress.com/get-desktopserver)
+    - [VVV (somewhat complex)](https://github.com/Varying-Vagrant-Vagrants/VVV)
+    - [Scotchbox (somewhat complex)](https://box.scotch.io/)
+## Features
+- Sass (`.scss`)
+- Autoprefixer (automatically creates css rules for `IE10+` compatibility)
+- Modern JavaScript ES2015+ (compiles to ES5 for `IE10+` compatibility)
 
-_s
-===
+## Get Started
+- Open your terminal, `cd` into your themes directory
+    * (e.g. `cd ~/Local\ Sites/project/app/public/wp-content/themes`)
+- Clone the repo `git clone https://github.com/mizner/Creator`
+- Run `yarn install` (or `npm` alternatives) ... I highly recommend yarn.
+- To build assets (css & javascript) run `gulp build`
+    - **Note:** `.scss` files will pre-process to `.css` files output in the `/dist` folder
+    - **Note:** All `.js` files get combined and minified to one file output in the `/dist` folder
+- Open `gulpfile.js` and make sure `localUri` is changed from `http://wordpress.dev` to whatever you local site is e.g `localhost:8000`, `http://mysite.dev`, etc.
+- Now the awesome part, run `gulp watch`
+    - **Note:** This will open your browser to `localhost:3000` (probably) and watch for changes you make to theme files.  
+    - **Note:** `.js` and `.php` files with cause the page to reload
+    - **Awesome Note:** `.scss` files changes will inject the new sites into the site without reloading (well... 99% of the time).
+- Clean up the files in the `assets/scripts` (there's just some simple code inside as an example)
+- Have fun writing `.scss` and watching your changes happen immediately
+    
+## What's different from the regular underscores theme?
+- The `style.css` file is only being loaded on the backend to allow it to be activated.  No `css` changes here will effect the frontend.
+- `functions.php` (starting at line `123`) has been lightly modified to enqueue 3 new files 
+    - Our main `css` file that is dynamically created via `gulp`
+    - Our main `js` file that is dynamically created via `gulp`
+    - A WooCommerce `css` file (if WooCommerce exists) that is dynamically created via `gulp`
+    
+    
+## How to use the tools here in your existing theme/child-theme:
+- Copy `package.json` and `gulpfile.js` into your existing theme.
+- Create a `assets` folder with two subdirectory folders inside `scripts` and `style` 
+- Create a `main.js` file in the `scripts` folder
+- Create a `main.scss` file in the `style` folder
+- Run `yarn install` after you've `cd` into the theme directory
+- Make sure you've changed the `url`
+- Modify your `functions.php` to enqueue the `css` and `js` files
 
-Hi. I'm a starter theme called `_s`, or `underscores`, if you like. I'm a theme meant for hacking so don't use me as a Parent Theme. Instead try turning me into the next, most awesome, WordPress theme out there. That's what I'm here for.
+**Example:** 
+```$php
+function gulp_enqueues() {
+    $childtheme_css = get_stylesheet_directory_uri() . '/dist/main.min.css'; // Use if not a child theme 
+    $theme_css = get_template_directory_uri() . '/dist/main.min.css'; // Use if not a child theme
+    wp_enqueue_style( 'gulp-style', $theme_css );
 
-My ultra-minimal CSS might make me look like theme tartare but that means less stuff to get in your way when you're designing your awesome theme. Here are some of the other more interesting things you'll find here:
-
-* A just right amount of lean, well-commented, modern, HTML5 templates.
-* A helpful 404 template.
-* A custom header implementation in `inc/custom-header.php` just add the code snippet found in the comments of `inc/custom-header.php` to your `header.php` template.
-* Custom template tags in `inc/template-tags.php` that keep your templates clean and neat and prevent code duplication.
-* Some small tweaks in `inc/template-functions.php` that can improve your theming experience.
-* A script at `js/navigation.js` that makes your menu a toggled dropdown on small screens (like your phone), ready for CSS artistry. It's enqueued in `functions.php`.
-* 2 sample CSS layouts in `layouts/` for a sidebar on either side of your content.
-* Smartly organized starter CSS in `style.css` that will help you to quickly get your design off the ground.
-* Licensed under GPLv2 or later. :) Use it to make something cool.
-
-Getting Started
----------------
-
-If you want to keep it simple, head over to https://underscores.me and generate your `_s` based theme from there. You just input the name of the theme you want to create, click the "Generate" button, and you get your ready-to-awesomize starter theme.
-
-If you want to set things up manually, download `_s` from GitHub. The first thing you want to do is copy the `_s` directory and change the name to something else (like, say, `megatherium-is-awesome`), and then you'll need to do a five-step find and replace on the name in all the templates.
-
-1. Search for `'_s'` (inside single quotations) to capture the text domain.
-2. Search for `_s_` to capture all the function names.
-3. Search for `Text Domain: _s` in `style.css`.
-4. Search for <code>&nbsp;_s</code> (with a space before it) to capture DocBlocks.
-5. Search for `_s-` to capture prefixed handles.
-
-OR
-
-1. Search for: `'_s'` and replace with: `'megatherium-is-awesome'`
-2. Search for: `_s_` and replace with: `megatherium_is_awesome_`
-3. Search for: `Text Domain: _s` and replace with: `Text Domain: megatherium-is-awesome` in `style.css`.
-4. Search for: <code>&nbsp;_s</code> and replace with: <code>&nbsp;Megatherium_is_Awesome</code>
-5. Search for: `_s-` and replace with: `megatherium-is-awesome-`
-
-Then, update the stylesheet header in `style.css`, the links in `footer.php` with your own information and rename `_s.pot` from `languages` folder to use the theme's slug. Next, update or delete this readme.
-
-Now you're ready to go! The next step is easy to say, but harder to do: make an awesome WordPress theme. :)
-
-Good luck!
+    $childtheme_js = get_stylesheet_directory_uri() . '/dist/main.min.js'; // Use if not a child theme 
+    $theme_js = get_template_directory_uri() . '/dist/main.min.js'; // Use if not a child theme
+    wp_enqueue_script( 'gulp-script', $theme_js, [ 'jquery' ], '1.0', true );
+}
+add_action( 'wp_enqueue_scripts', 'gulp_enqueues' );
+```
+    
